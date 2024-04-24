@@ -116,7 +116,9 @@ def main():
         if response.lower() == "y":
             # Check if the dump directories have matching numbers of SAR and mask files
             sar = os.listdir("dump_sar_here")
+            sar.remove("readme.txt")  # Remove the readme file from the list
             masks = os.listdir("dump_masks_here")
+            masks.remove("readme.txt")  # Remove the readme file from the list
             if len(sar) == len(masks) > 0:
                 # If files are present and counts match, proceed to split files into sets
                 initiate_split()  # Default ratios for splitting are 0.6, 0.2, 0.2

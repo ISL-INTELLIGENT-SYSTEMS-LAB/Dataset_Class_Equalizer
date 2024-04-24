@@ -27,9 +27,31 @@ def split_files(path, train_ratio, val_ratio, test_ratio):
     
     return train_files, val_files, test_files
 
+def make_directories():
+    """Make directories for training, validation, and testing sets."""
+    # Get the current working directory
+    cwd = os.getcwd()
+    # Create directories for training, validation, and testing sets
+    os.makedirs(os.path.join(cwd, 'original_images', 'train_SAR'), exist_ok=True)
+    os.makedirs(os.path.join(cwd, 'original_images', 'val_SAR'), exist_ok=True)
+    os.makedirs(os.path.join(cwd, 'original_images', 'test_SAR'), exist_ok=True)
+    os.makedirs(os.path.join(cwd, 'original_images', 'train_mask'), exist_ok=True)
+    os.makedirs(os.path.join(cwd, 'original_images', 'val_mask'), exist_ok=True)
+    os.makedirs(os.path.join(cwd, 'original_images', 'test_mask'), exist_ok=True)
+
+    # Create directories for the split images
+    os.makedirs(os.path.join(cwd, 'split_images', 'train_SAR'), exist_ok=True)
+    os.makedirs(os.path.join(cwd, 'split_images', 'val_SAR'), exist_ok=True)
+    os.makedirs(os.path.join(cwd, 'split_images', 'test_SAR'), exist_ok=True)
+    os.makedirs(os.path.join(cwd, 'split_images', 'train_mask'), exist_ok=True)
+    os.makedirs(os.path.join(cwd, 'split_images', 'val_mask'), exist_ok=True)
+    os.makedirs(os.path.join(cwd, 'split_images', 'test_mask'), exist_ok=True)
+
 
 def initiate_split(train_ratio=0.6, val_ratio=0.2, test_ratio=0.2):
     """Initiate the splitting of files into training, validation, and testing directories."""
+    # Make directories for the training, validation, and testing sets
+    make_directories()
     # Get the current working directory
     cwd = os.getcwd()
     # Construct the path to the directory containing initial dumped files
