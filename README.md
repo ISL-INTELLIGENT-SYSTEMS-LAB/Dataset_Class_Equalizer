@@ -32,18 +32,18 @@ Ensure you have Python 3.11 or later installed. Then install the required librar
 pip install -r requirements.txt
 ```
 
-Dependencies include NumPy, Pandas, and others listed in the `requirements.txt` file.
+Dependencies include Pillow and tqdm which are listed in the `requirements.txt` file.
 
 ## Usage
 
 Follow these steps to utilize the Dataset Class Equalizer:
 
-1. **Prepare Your Dataset**: Format your data in a manner compatible with the tool, such as CSV files with appropriate labeling.
+1. **Prepare Your Dataset**: Format your data in a manner compatible with the tool.
 2. **Configure**: Modify the settings when prompted when running `entry.py`
 3. **Run the Tool**: Execute the script to start the equalization process:
 
 ```bash
-python main.py
+python entry.py
 ```
 
 ## Contributing
