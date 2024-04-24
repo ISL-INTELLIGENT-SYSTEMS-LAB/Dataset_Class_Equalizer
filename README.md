@@ -1,5 +1,5 @@
 
-# Dataset Class Equalizer
+# Dataset Class Equalizer for SAR Imagery
 
 Welcome to the Dataset Class Equalizer repository, developed by the ISL Intelligent Systems Lab. This tool is designed to help balance class distributions in datasets, which is particularly useful for enhancing the performance of machine learning models affected by class imbalance.
 
