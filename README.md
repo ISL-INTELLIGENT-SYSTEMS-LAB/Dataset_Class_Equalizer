@@ -3,6 +3,11 @@
 
 Welcome to the Dataset Class Equalizer repository, developed by the ISL Intelligent Systems Lab. This tool is designed to help balance class distributions in datasets, which is particularly useful for enhancing the performance of machine learning models affected by class imbalance.
 
+![image](https://github.com/ISL-INTELLIGENT-SYSTEMS-LAB/Dataset_Class_Equalizer/assets/78773029/6842c7b7-fd0e-4639-90df-49efdc72840b)
+![image](https://github.com/ISL-INTELLIGENT-SYSTEMS-LAB/Dataset_Class_Equalizer/assets/78773029/8eca83d3-2ace-46f3-81ca-a813d5a43ac5)
+
+
+
 ## Features
 
 - **Class Distribution Analysis**: Provides tools to analyze the distribution of classes within your dataset.
