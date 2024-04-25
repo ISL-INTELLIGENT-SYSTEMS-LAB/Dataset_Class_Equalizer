@@ -56,6 +56,10 @@ We appreciate contributions from the community, whether they are feature enhance
 4. Push to the branch (`git push origin feature-branch`).
 5. Submit a pull request.
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
 
 ## Contact
 
