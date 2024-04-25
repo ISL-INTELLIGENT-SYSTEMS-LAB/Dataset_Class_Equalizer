@@ -132,9 +132,16 @@ def main():
                 # If files are present and counts match, proceed to split files into sets
                 initiate_split()  # Default ratios for splitting are 0.6, 0.2, 0.2
                 move_corresponding_masks()  # Ensure masks match the split SAR files
-                print("Files have been split ad moved to the appropriate directories.\n")
+                print("Files have been split and moved to the appropriate directories.\n")
                 break
             else:
+                # Remake .txt file with the text
+                with open(os.path.join(os.getcwd(), "dump_sar_here", "readme.txt"), "w") as f:
+                    f.write("Place SAR images here for processing.")
+
+                with open(os.path.join(os.getcwd(), "dump_masks_here", "readme.txt"), "w") as f:
+                    f.write("Place masks here for processing.")                
+
                 # Notify user of mismatch or empty directories
                 print("No files to split. Please add files to the dump directories.")
                 # Inner loop to manage file addition without exiting the program
