@@ -116,15 +116,31 @@ def check_image_count(dir_path, catgory):
         process_dataset(dir_path, catgory)
 
 
+def validate_all_images_have_pairs(sar_path, mask_path):
+    # Check if all SAR images have corresponding masks
+    sar_images = os.listdir(sar_path)
+    mask_images = os.listdir(mask_path)
+    for sar_image in sar_images:
+        if sar_image not in mask_images:
+            return False
+    return True
+
+
 def main():
     # Continuously prompt until the user decides to stop
     while True:
         # Prompt user for initial choice about cleaning directories
         response = input("Do you want to split and clear the dump directories? (y/n): ")
         if response.lower() == "y":
+            # Check if all SAR images have corresponding masks
+            if not validate_all_images_have_pairs(sar, masks):
+                print("Error: Not all SAR images have corresponding masks. Please ensure all images have pairs.")
+                break
+
             # Remove the readme files from the dump directories
             os.remove(os.path.join(os.getcwd(), "dump_sar_here", "readme.txt"))
             os.remove(os.path.join(os.getcwd(), "dump_masks_here", "readme.txt"))
+            
             # Check if the dump directories have matching numbers of SAR and mask files
             sar = os.listdir(os.path.join(os.getcwd(), "dump_sar_here"))
             masks = os.listdir(os.path.join(os.getcwd(), "dump_masks_here"))
@@ -220,10 +236,12 @@ def main():
         if response.lower() == "y":
             # Process datasets at each filtration level
             folders = os.listdir(os.getcwd())
+            # Count the number of filtered datasets
             count = 0
             for folder in folders:
                 if folder.startswith("filtered"):
                     count += 1
+            
             if count != 0:
                 for i in range(1, count+1):
                     filtered_images_path = os.path.join(os.getcwd(), f"filtered_images{i}")

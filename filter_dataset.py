@@ -28,6 +28,9 @@ def filter_dataset(thresholds, iteration):
     # Process each folder in the split images directory
     for folder in os.listdir(split_images_path):
         if folder.lower().endswith("mask"):
+            if len(os.listdir(os.path.join(split_images_path, folder))) == 0:
+                print(f"Skipping {folder} as it contains no images.")
+                continue
             folder_path = os.path.join(split_images_path, folder)
             with tqdm(total=len(os.listdir(folder_path)), desc=f"Filtering {folder:<10}", unit='img', bar_format='{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt}', dynamic_ncols=True) as pbar:
                 for image in os.listdir(folder_path):
