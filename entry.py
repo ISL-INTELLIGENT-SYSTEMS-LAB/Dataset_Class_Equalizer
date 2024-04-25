@@ -126,6 +126,7 @@ def main():
             move_corresponding_masks()  # Ensure masks match the split SAR files
             print("Files have been split ad moved to the appropriate directories.\n")
             break
+            """
             else:
                 # Notify user of mismatch or empty directories
                 print("No files to split. Please add files to the dump directories.")
@@ -139,6 +140,7 @@ def main():
                         break
                     else:
                         print("Invalid response. Please enter 'y' or 'n'.")
+                        """
         elif response.lower() == "n":
             break  # Exit the loop if user declines to clear directories
         else:
