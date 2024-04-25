@@ -39,7 +39,7 @@ def filter_dataset(thresholds, iteration):
 
                     # Filter based on threshold values for urban and peatland percentages
                     if urban_percentage >= thresholds[iteration-1] or peatland_percentage >= thresholds[iteration-1]:
-                        move_corrisponding_sar(image, folder.replace("Mask","SAR"), iteration)  # Move corresponding SAR image
+                        move_corrisponding_sar(image, folder.replace("mask","SAR"), iteration)  # Move corresponding SAR image
                         shutil.copy(image_path, os.path.join(filtered_images_path, folder, image))  # Copy the image to the new location
                                 
                     pbar.update(1)  # Update progress bar for each image processed
@@ -54,9 +54,9 @@ def make_filtered_directories(iteration):
     os.makedirs(os.path.join(cwd, f'filtered_images{iteration}', 'train_SAR'), exist_ok=True)
     os.makedirs(os.path.join(cwd, f'filtered_images{iteration}', 'val_SAR'), exist_ok=True)
     os.makedirs(os.path.join(cwd, f'filtered_images{iteration}', 'test_SAR'), exist_ok=True)
-    os.makedirs(os.path.join(cwd, f'filtered_images{iteration}', 'train_Mask'), exist_ok=True)
-    os.makedirs(os.path.join(cwd, f'filtered_images{iteration}', 'val_Mask'), exist_ok=True)
-    os.makedirs(os.path.join(cwd, f'filtered_images{iteration}', 'test_Mask'), exist_ok=True)
+    os.makedirs(os.path.join(cwd, f'filtered_images{iteration}', 'train_mask'), exist_ok=True)
+    os.makedirs(os.path.join(cwd, f'filtered_images{iteration}', 'val_mask'), exist_ok=True)
+    os.makedirs(os.path.join(cwd, f'filtered_images{iteration}', 'test_mask'), exist_ok=True)
 
 
 def move_corrisponding_sar(mask_img_name, category, iteration):
@@ -75,7 +75,7 @@ def initiate_filter(thresholds=[0.1, 0.12, 0.14, 0.16]):
     Iterates through four threshold levels, filtering the dataset each time.
     """
     # Filter the dataset based on the threshold value
-    for i in range(0, 4):
+    for i in range(0, len(thresholds)):
         filter_dataset(thresholds, i+1)
         print(f"Dataset filtered for threshold {thresholds[i]}.\n")
     

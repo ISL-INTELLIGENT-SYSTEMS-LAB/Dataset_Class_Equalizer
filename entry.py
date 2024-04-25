@@ -108,6 +108,14 @@ def process_dataset(dataset_path, dataset_type="dataset"):
     display_dataset_details(dataset_path, dataset_type, count_pixels_for_split_images, get_occurrence_percentage)
 
 
+def check_image_count(dir_path, catgory):
+    if len(os.listdir(dir_path)) == 0:
+        print(f"No images to process in {catgory}.")
+        return
+    else:
+        process_dataset(dir_path, catgory)
+
+
 def main():
     # Continuously prompt until the user decides to stop
     while True:
@@ -126,7 +134,6 @@ def main():
                 move_corresponding_masks()  # Ensure masks match the split SAR files
                 print("Files have been split ad moved to the appropriate directories.\n")
                 break
-                
             else:
                 # Notify user of mismatch or empty directories
                 print("No files to split. Please add files to the dump directories.")
@@ -140,7 +147,6 @@ def main():
                         break
                     else:
                         print("Invalid response. Please enter 'y' or 'n'.")
-                        
         elif response.lower() == "n":
             break  # Exit the loop if user declines to clear directories
         else:
@@ -163,13 +169,13 @@ def main():
         if response.lower() == "y":
             base_path = os.path.join(os.getcwd(), "split_images")
             # Set paths for each dataset section
-            val_mask_path = os.path.join(base_path, "val_Mask")
-            test_mask_path = os.path.join(base_path, "test_Mask")
-            train_mask_path = os.path.join(base_path, "train_Mask")
+            val_mask_path = os.path.join(base_path, "val_mask")
+            test_mask_path = os.path.join(base_path, "test_mask")
+            train_mask_path = os.path.join(base_path, "train_mask")
             # Process and analyze each section
-            process_dataset(val_mask_path, "val")
-            process_dataset(test_mask_path, "test")
-            process_dataset(train_mask_path, "train")
+            check_image_count(val_mask_path, "val")
+            check_image_count(test_mask_path, "test")
+            check_image_count(train_mask_path, "train")
             break
         elif response.lower() == "n":
             break
@@ -206,15 +212,24 @@ def main():
         response = input("Do you want to process the class distribution post filter? (y/n): ")
         if response.lower() == "y":
             # Process datasets at each filtration level
-            for i in range(1,5):
-                filtered_images_path = os.path.join(os.getcwd(), f"filtered_images{i}")
-                val_mask_path = os.path.join(filtered_images_path, "val_mask")
-                test_mask_path = os.path.join(filtered_images_path, "test_mask")
-                train_mask_path = os.path.join(filtered_images_path, "train_mask")
-                print(f"\nFiltered Dataset {i}")
-                process_dataset(val_mask_path, "val")
-                process_dataset(test_mask_path, "test")
-                process_dataset(train_mask_path, "train")
+            folders = os.listdir(os.getcwd())
+            count = 0
+            for folder in folders:
+                if folder.startswith("filtered"):
+                    count += 1
+            if count != 0:
+                for i in range(1, count+1):
+                    filtered_images_path = os.path.join(os.getcwd(), f"filtered_images{i}")
+                    val_mask_path = os.path.join(filtered_images_path, "val_mask")
+                    test_mask_path = os.path.join(filtered_images_path, "test_mask")
+                    train_mask_path = os.path.join(filtered_images_path, "train_mask")
+                    print(f"\nFiltered Dataset {i}")
+
+                    check_image_count(val_mask_path, "val")
+                    check_image_count(test_mask_path, "test")
+                    check_image_count(train_mask_path, "train")
+            else:
+                print("Please filter images first!")
             break
         elif response.lower() == "n":
             break
