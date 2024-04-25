@@ -120,13 +120,13 @@ def main():
             # Check if the dump directories have matching numbers of SAR and mask files
             sar = os.listdir(os.path.join(os.getcwd(), "dump_sar_here"))
             masks = os.listdir(os.path.join(os.getcwd(), "dump_masks_here"))
-            #if len(sar) == len(masks) > 0:
-            # If files are present and counts match, proceed to split files into sets
-            initiate_split()  # Default ratios for splitting are 0.6, 0.2, 0.2
-            move_corresponding_masks()  # Ensure masks match the split SAR files
-            print("Files have been split ad moved to the appropriate directories.\n")
-            break
-            """
+            if len(sar) == len(masks) > 0:
+                # If files are present and counts match, proceed to split files into sets
+                initiate_split()  # Default ratios for splitting are 0.6, 0.2, 0.2
+                move_corresponding_masks()  # Ensure masks match the split SAR files
+                print("Files have been split ad moved to the appropriate directories.\n")
+                break
+                
             else:
                 # Notify user of mismatch or empty directories
                 print("No files to split. Please add files to the dump directories.")
@@ -140,7 +140,7 @@ def main():
                         break
                     else:
                         print("Invalid response. Please enter 'y' or 'n'.")
-                        """
+                        
         elif response.lower() == "n":
             break  # Exit the loop if user declines to clear directories
         else:
