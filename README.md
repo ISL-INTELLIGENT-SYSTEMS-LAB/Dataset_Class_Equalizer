@@ -58,7 +58,7 @@ We appreciate contributions from the community, whether they are feature enhance
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/ISL-INTELLIGENT-SYSTEMS-LAB/Dataset_Class_Equalizer/blob/main/LICENSE) file for details.
 
 
 ## Contact
