@@ -6,7 +6,6 @@
 """
 
 import os
-from PIL import Image
 from tqdm import tqdm
 import shutil
 from data_point_collector import count_pixels
@@ -28,7 +27,7 @@ def filter_dataset(thresholds, iteration):
 
     # Process each folder in the split images directory
     for folder in os.listdir(split_images_path):
-        if folder.endswith("Mask"):
+        if folder.lower().endswith("mask"):
             folder_path = os.path.join(split_images_path, folder)
             with tqdm(total=len(os.listdir(folder_path)), desc=f"Filtering {folder:<10}", unit='img', bar_format='{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt}', dynamic_ncols=True) as pbar:
                 for image in os.listdir(folder_path):
@@ -75,9 +74,6 @@ def initiate_filter(thresholds=[0.1, 0.12, 0.14, 0.16]):
     Initiate the filtering of the dataset based on the threshold value.
     Iterates through four threshold levels, filtering the dataset each time.
     """
-    # Get the current working directory
-    cwd = os.getcwd()
-
     # Filter the dataset based on the threshold value
     for i in range(0, 4):
         filter_dataset(thresholds, i+1)

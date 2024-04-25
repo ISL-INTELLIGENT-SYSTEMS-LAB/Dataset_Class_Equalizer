@@ -112,17 +112,20 @@ def main():
     # Continuously prompt until the user decides to stop
     while True:
         # Prompt user for initial choice about cleaning directories
-        response = input("Do you want to clear the split and dump directories? (y/n): ")
+        response = input("Do you want to split and clear the dump directories? (y/n): ")
         if response.lower() == "y":
+            # Remove the readme files from the dump directories
+            os.remove(os.path.join(os.getcwd(), "dump_sar_here", "readme.txt"))
+            os.remove(os.path.join(os.getcwd(), "dump_masks_here", "readme.txt"))
             # Check if the dump directories have matching numbers of SAR and mask files
-            sar = os.listdir("dump_sar_here")
-            sar.remove("readme.txt")  # Remove the readme file from the list
-            masks = os.listdir("dump_masks_here")
-            masks.remove("readme.txt")  # Remove the readme file from the list
+            sar = os.listdir(os.path.join(os.getcwd(), "dump_sar_here"))
+            masks = os.listdir(os.path.join(os.getcwd(), "dump_masks_here"))
             if len(sar) == len(masks) > 0:
                 # If files are present and counts match, proceed to split files into sets
                 initiate_split()  # Default ratios for splitting are 0.6, 0.2, 0.2
                 move_corresponding_masks()  # Ensure masks match the split SAR files
+                print("Files have been split ad moved to the appropriate directories.\n")
+                break
             else:
                 # Notify user of mismatch or empty directories
                 print("No files to split. Please add files to the dump directories.")
@@ -146,6 +149,7 @@ def main():
         response = input("Do you want to expand the dataset? (y/n): ")
         if response.lower() == "y":
             split_images()  # Splits each image into 4 quadrants to increase dataset size
+            break
         elif response.lower() == "n":
             break
         else:
@@ -177,11 +181,14 @@ def main():
             response1 = input("Do you want to use the default threshold values of 10%, 12%, 14%, 16%? (y/n): ")
             if response1.lower() == "y":
                 initiate_filter()  # Apply predefined threshold levels
+                break
             elif response1.lower() == "n":
                 # Allow user to specify custom thresholds
                 while True:
                     try:
                         thresholds = [float(x) for x in input("Enter the threshold values separated by a space (.12 = 12%): ").split()]
+                        # Sort from lowest to highest threshold
+                        thresholds.sort()
                         initiate_filter(thresholds)
                         break
                     except ValueError:
@@ -213,6 +220,5 @@ def main():
             print("Invalid response. Please enter 'y' or 'n'.")
 
     
-
 if __name__ == "__main__":
     main()
