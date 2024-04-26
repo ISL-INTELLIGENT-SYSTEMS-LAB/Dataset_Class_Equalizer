@@ -6,6 +6,7 @@
 """
 
 import os
+import re
 from tqdm import tqdm
 from dataset_spliter import *
 from dataset_expander import *
@@ -104,15 +105,31 @@ def display_dataset_details(path, dataset_type, pixel_count_function, percentage
     print("")
 
     if auto:
-        with open(f"{dataset_type}_class_distribution.txt", "w") as f:
-            f.write(f"Total number of classes in {dataset_type}: {total_pixels:,}\n")
-            f.write(f"\n{dataset_type.capitalize()} class occurrences: \n")
-            for key, value in class_counts.items():
-                f.write(f"{key}: {value:,}\n")
-            f.write(f"\n{dataset_type.capitalize()} class percentages: \n")
-            for key, value in class_percentages.items():
-                f.write(f"{key}: {value:.3f}%\n")
-            f.write("\n")
+        # Check if path is filtered_images or split_images
+        if "split" in path:
+            with open(f"{dataset_type}_class_distribution.txt", "w") as f:
+                f.write(f"Total number of classes in {dataset_type}: {total_pixels:,}\n\n")
+                f.write(f"{dataset_type.capitalize()} class occurrences: \n")
+                for key, value in class_counts.items():
+                    f.write(f"{key}: {value:,}\n")
+                f.write("\n")
+                f.write(f"{dataset_type.capitalize()} class percentages: \n")
+                for key, value in class_percentages.items():
+                    f.write(f"{key}: {value:.3f}%\n")
+                f.write("\n")
+        elif "filtered" in path:
+            # Split the number off the end of the filtered_images# folder
+            iteration = re.search(r"filtered_images(\d+)", path).group(1)
+            with open(f"filtered_{iteration}_class_distribution.txt", "w") as f:
+                f.write(f"Total number of classes in {dataset_type}: {total_pixels:,}\n\n")
+                f.write(f"{dataset_type.capitalize()} class occurrences: \n")
+                for key, value in class_counts.items():
+                    f.write(f"{key}: {value:,}\n")
+                f.write("\n")
+                f.write(f"{dataset_type.capitalize()} class percentages: \n")
+                for key, value in class_percentages.items():
+                    f.write(f"{key}: {value:.3f}%\n")
+                f.write("\n")
 
 
 def process_dataset(dataset_path, dataset_type="dataset", auto=False):
@@ -124,7 +141,7 @@ def check_image_count(dir_path, catgory, auto=False):
         print(f"No images to process in {catgory}.")
         return
     else:
-        process_dataset(dir_path, catgory, auto)
+        process_dataset(dir_path, catgory, auto=auto)
 
 
 def validate_all_images_have_pairs(sar_path, mask_path):
@@ -139,7 +156,7 @@ def validate_all_images_have_pairs(sar_path, mask_path):
 
 def create_txt_file(iteration):
     img_folders = os.listdir(os.path.join(os.getcwd(), f"filtered_images{iteration}"))
-    with open(f"split_{iteration}.txt", "w") as f:
+    with open(f"filter_{iteration}.txt", "w") as f:
         for folder in img_folders:
             if folder.endswith("mask"):
                 continue
@@ -160,45 +177,48 @@ def automated_main():
     7. Process the class distribution post filtration
     8. Write the iteration file names that passed the threshold to a text file
     """
-    
-    sar = os.path.join(os.getcwd(), "dump_sar_here")
-    masks = os.path.join(os.getcwd(), "dump_masks_here")
-    # Check if all SAR images have corresponding masks
-    if not validate_all_images_have_pairs(sar, masks):
-        print("Error: Not all SAR images have corresponding masks. Please ensure all images have pairs.")
-        return
+    try:
+        sar = os.path.join(os.getcwd(), "dump_sar_here")
+        masks = os.path.join(os.getcwd(), "dump_masks_here")
+        # Check if all SAR images have corresponding masks
+        if not validate_all_images_have_pairs(sar, masks):
+            print("Error: Not all SAR images have corresponding masks. Please ensure all images have pairs.")
+            return
 
-    # Remove the readme files from the dump directories
-    os.remove(os.path.join(os.getcwd(), "dump_sar_here", "readme.txt"))
-    os.remove(os.path.join(os.getcwd(), "dump_masks_here", "readme.txt"))
+        # Remove the readme files from the dump directories
+        os.remove(os.path.join(os.getcwd(), "dump_sar_here", "readme.txt"))
+        os.remove(os.path.join(os.getcwd(), "dump_masks_here", "readme.txt"))
 
-    # Split the files at the default ratios of 0.6, 0.2, 0.2
-    initiate_split()
-    move_corresponding_masks()
-    split_images()
-    base_path = os.path.join(os.getcwd(), "split_images")
-    val_mask_path = os.path.join(base_path, "val_mask")
-    test_mask_path = os.path.join(base_path, "test_mask")
-    train_mask_path = os.path.join(base_path, "train_mask")
-    check_image_count(val_mask_path, "val", True)
-    check_image_count(test_mask_path, "test", True)
-    check_image_count(train_mask_path, "train", True)
-    initiate_filter(auto=True)
-    folders = os.listdir(os.getcwd())
-    count = 0
-    for folder in folders:
-        if folder.startswith("filtered"):
-            count += 1
-    for i in range(1, count+1):
-        filtered_images_path = os.path.join(os.getcwd(), f"filtered_images{i}")
-        val_mask_path = os.path.join(filtered_images_path, "val_mask")
-        test_mask_path = os.path.join(filtered_images_path, "test_mask")
-        train_mask_path = os.path.join(filtered_images_path, "train_mask")
-        print(f"\nFiltered Dataset {i}")
+        # Split the files at the default ratios of 0.6, 0.2, 0.2
+        initiate_split()
+        move_corresponding_masks()
+        split_images()
+        base_path = os.path.join(os.getcwd(), "split_images")
+        val_mask_path = os.path.join(base_path, "val_mask")
+        test_mask_path = os.path.join(base_path, "test_mask")
+        train_mask_path = os.path.join(base_path, "train_mask")
         check_image_count(val_mask_path, "val", True)
         check_image_count(test_mask_path, "test", True)
         check_image_count(train_mask_path, "train", True)
-        create_txt_file(i)
+        initiate_filter(auto=True)
+        folders = os.listdir(os.getcwd())
+        count = 0
+        for folder in folders:
+            if folder.startswith("filtered"):
+                count += 1
+        for i in range(1, count+1):
+            filtered_images_path = os.path.join(os.getcwd(), f"filtered_images{i}")
+            val_mask_path = os.path.join(filtered_images_path, "val_mask")
+            test_mask_path = os.path.join(filtered_images_path, "test_mask")
+            train_mask_path = os.path.join(filtered_images_path, "train_mask")
+            print(f"\nFiltered Dataset {i}")
+            check_image_count(val_mask_path, "val", True)
+            check_image_count(test_mask_path, "test", True)
+            check_image_count(train_mask_path, "train", True)
+            create_txt_file(i)
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return
     
 
 def main():
@@ -235,7 +255,7 @@ Thank you for using the SAR Image Dataset Expander!
         response = input("Do you want to run the program and have it automatically use all defaults to augment the dataset? (y/n): ")
         if response.lower() == "y":
             automated_main()
-            break
+            return
         elif response.lower() == "n":
             break
         else:
