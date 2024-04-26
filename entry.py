@@ -82,7 +82,7 @@ def get_occurrence_percentage(dictionary):
     return {class_name: (count / sum(dictionary.values()) * 100) for class_name, count in dictionary.items()}
 
 
-def display_dataset_details(path, dataset_type, pixel_count_function, percentage_function):
+def display_dataset_details(path, dataset_type, pixel_count_function, percentage_function, auto=False):
     # Get the list of files in the directory
     files = os.listdir(path)
     
@@ -102,6 +102,17 @@ def display_dataset_details(path, dataset_type, pixel_count_function, percentage
     for key, value in class_percentages.items():
         print(f"{key}: {value:.3f}%")
     print("")
+
+    if auto:
+        with open(f"{dataset_type}_class_distribution.txt", "w") as f:
+            f.write(f"Total number of classes in {dataset_type}: {total_pixels:,}\n")
+            f.write(f"\n{dataset_type.capitalize()} class occurrences: \n")
+            for key, value in class_counts.items():
+                f.write(f"{key}: {value:,}\n")
+            f.write(f"\n{dataset_type.capitalize()} class percentages: \n")
+            for key, value in class_percentages.items():
+                f.write(f"{key}: {value:.3f}%\n")
+            f.write("\n")
 
 
 def process_dataset(dataset_path, dataset_type="dataset"):
@@ -125,8 +136,110 @@ def validate_all_images_have_pairs(sar_path, mask_path):
             return False
     return True
 
+def create_txt_file(iteration):
+    img_folders = os.listdir(os.path.join(os.getcwd(), f"filtered_images{iteration}"))
+    with open(f"split_{iteration}.txt", "w") as f:
+        for folder in img_folders:
+            if folder.endswith("mask"):
+                continue
+            f.write(f"{folder}:\n")
+            for img in os.listdir(os.path.join(os.getcwd(), f"filtered_images{iteration}", folder)):
+                f.write(f"{img}\n")
+            f.write("\n")
+        
+
+def automated_main():
+    """
+    1. Clear the dump directories
+    2. Split the files into training, validation, and testing sets (Default: 0.6, 0.2, 0.2)
+    3. Move corresponding mask files to match the SAR files in their respective directories
+    4. Split the images into quadrants
+    5. Check the class distribution post split
+    6. Filter the dataset based on a threshold (Default: 10%, 12%, 14%, 16%)
+    7. Process the class distribution post filtration
+    8. Write the iteration file names that passed the threshold to a text file
+    """
+    sar = os.path.join(os.getcwd(), "dump_sar_here")
+    masks = os.path.join(os.getcwd(), "dump_masks_here")
+    # Check if all SAR images have corresponding masks
+    if not validate_all_images_have_pairs(sar, masks):
+        print("Error: Not all SAR images have corresponding masks. Please ensure all images have pairs.")
+        return
+
+    # Remove the readme files from the dump directories
+    os.remove(os.path.join(os.getcwd(), "dump_sar_here", "readme.txt"))
+    os.remove(os.path.join(os.getcwd(), "dump_masks_here", "readme.txt"))
+
+    # Split the files at the default ratios of 0.6, 0.2, 0.2
+    initiate_split()
+    move_corresponding_masks()
+    split_images()
+    base_path = os.path.join(os.getcwd(), "split_images")
+    val_mask_path = os.path.join(base_path, "val_mask")
+    test_mask_path = os.path.join(base_path, "test_mask")
+    train_mask_path = os.path.join(base_path, "train_mask")
+    check_image_count(val_mask_path, "val")
+    check_image_count(test_mask_path, "test")
+    check_image_count(train_mask_path, "train")
+    initiate_filter()
+    folders = os.listdir(os.getcwd())
+    count = 0
+    for folder in folders:
+        if folder.startswith("filtered"):
+            count += 1
+    for i in range(1, count+1):
+        filtered_images_path = os.path.join(os.getcwd(), f"filtered_images{i}")
+        val_mask_path = os.path.join(filtered_images_path, "val_mask")
+        test_mask_path = os.path.join(filtered_images_path, "test_mask")
+        train_mask_path = os.path.join(filtered_images_path, "train_mask")
+        print(f"\nFiltered Dataset {i}")
+        check_image_count(val_mask_path, "val")
+        check_image_count(test_mask_path, "test")
+        check_image_count(train_mask_path, "train")
+        create_txt_file(i)
+    
 
 def main():
+    while True:
+        print("""
+Welcome to the SAR Image Dataset Expander!
+
+This program will help you augment your dataset by:
+- Splitting images into quadrants.
+- Filtering based on a threshold.
+
+➤ Ensure your SAR images are in 'dump_sar_here' and masks in 'dump_masks_here'.
+➤ The program will process the images and augment the dataset automatically.
+
+Required Directories:
+1. dump_sar_here
+2. dump_masks_here
+
+➤ Automated mode uses all defaults for dataset augmentation.
+
+Steps to follow:
+1. Clear the dump directories.
+2. Split files into training, validation, and testing sets (Defaults: 60%, 20%, 20%).
+3. Move corresponding mask files.
+4. Split images into quadrants.
+5. Check class distribution after split.
+6. Filter dataset by thresholds (Defaults: 10%, 12%, 14%, 16%).
+7. Process class distribution after filtration.
+8. Log the iteration file names that passed the threshold.
+
+Thank you for using the SAR Image Dataset Expander!
+""")
+
+
+
+        response = input("Do you want to run the program and have it automatically use all defaults to augment the dataset? (y/n): ")
+        if response.lower() == "y":
+            automated_main()
+            break
+        elif response.lower() == "n":
+            break
+        else:
+            print("Invalid response. Please enter 'y' or 'n'.")
     # Continuously prompt until the user decides to stop
     while True:
         # Prompt user for initial choice about cleaning directories
@@ -140,16 +253,35 @@ def main():
             # Remove the readme files from the dump directories
             os.remove(os.path.join(os.getcwd(), "dump_sar_here", "readme.txt"))
             os.remove(os.path.join(os.getcwd(), "dump_masks_here", "readme.txt"))
-            
+
             # Check if the dump directories have matching numbers of SAR and mask files
             sar = os.listdir(os.path.join(os.getcwd(), "dump_sar_here"))
             masks = os.listdir(os.path.join(os.getcwd(), "dump_masks_here"))
             if len(sar) == len(masks) > 0:
                 # If files are present and counts match, proceed to split files into sets
-                initiate_split()  # Default ratios for splitting are 0.6, 0.2, 0.2
-                move_corresponding_masks()  # Ensure masks match the split SAR files
-                print("Files have been split and moved to the appropriate directories.\n")
-                break
+                # Ask user if they want to split the files at the default ratios of 0.6, 0.2, 0.2 or a custom ratio
+                response1 = input("Do you want to use the default split ratios of 0.6, 0.2, 0.2? (y/n): ")
+                if response1.lower() == "y":
+                    initiate_split()  # Default ratios for splitting are 0.6, 0.2, 0.2
+                    move_corresponding_masks()  # Ensure masks match the split SAR files
+                    print("Files have been split and moved to the appropriate directories.\n")
+                    break
+                elif response1.lower() == "n":
+                    # Allow user to specify custom split ratios
+                    while True:
+                        try:
+                            ratios = [float(x) for x in input("Enter the split ratios separated by a space (.6 = 60% | Order: Train, Val, Test): ").split()]
+                            # Ensure the sum of the ratios is equal to 1
+                            if sum(ratios) != 1:
+                                print("Sum of ratios must equal 1. Please try again.")
+                                continue
+                            initiate_split(ratios)  # Split files based on custom ratios
+                            move_corresponding_masks()  # Ensure masks match the split SAR files
+                            print("Files have been split and moved to the appropriate directories.\n")
+                            break
+                        except ValueError:
+                            print("Invalid input. Please enter numerical values.")
+                    break
             else:
                 # Remake .txt file with the text
                 with open(os.path.join(os.getcwd(), "dump_sar_here", "readme.txt"), "w") as f:
@@ -177,7 +309,7 @@ def main():
 
     # Handle dataset expansion based on user input
     while True:
-        response = input("Do you want to expand the dataset? (y/n): ")
+        response = input("Do you want to split the dataset images into quadrants? (y/n): ")
         if response.lower() == "y":
             split_images()  # Splits each image into 4 quadrants to increase dataset size
             break
@@ -232,7 +364,7 @@ def main():
 
     # Post-filter class distribution processing
     while True:
-        response = input("Do you want to process the class distribution post filter? (y/n): ")
+        response = input("Do you want to process the class distribution post filtration? (y/n): ")
         if response.lower() == "y":
             # Process datasets at each filtration level
             folders = os.listdir(os.getcwd())

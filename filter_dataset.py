@@ -10,7 +10,7 @@ from tqdm import tqdm
 import shutil
 from data_point_collector import count_pixels
 
-def filter_dataset(thresholds, iteration):
+def filter_dataset(thresholds, iteration, auto=False):
     """
     Filter the dataset based on the threshold value.
     Creates directories and filters images based on urban and peatland percentages.
@@ -46,6 +46,12 @@ def filter_dataset(thresholds, iteration):
                         shutil.copy(image_path, os.path.join(filtered_images_path, folder, image))  # Copy the image to the new location
                                 
                     pbar.update(1)  # Update progress bar for each image processed
+
+            with open(f"filtration_stats.txt", "a") as f:
+                f.write(f"{folder} @{thresholds[iteration-1]*100}%:\n")
+                f.write(f"Total Images: {len(os.listdir(folder_path))}\n")
+                f.write(f"Filtered Image Total: {len(os.listdir(os.path.join(filtered_images_path, folder)))}\n\n")
+                
 
     
 def make_filtered_directories(iteration):

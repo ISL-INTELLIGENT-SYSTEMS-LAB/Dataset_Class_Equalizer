@@ -20,16 +20,16 @@ def save_image(image, path, filename, ext="png"):
         image.save(os.path.join(path, f"{filename}.{ext}"))
 
         # Check if path does not contain "Mask", indicating it's not a mask image
-        if "Mask" not in path:
+        if "mask" not in path:
             # Based on the directory name, append the filename to a corresponding text file
             if "test" in path:
-                with open("split_images_test.txt", "a") as f:
+                with open("split_test.txt", "a") as f:
                     f.write(f"{filename}.{ext}\n")
             elif "train" in path:
-                with open("split_images_train.txt", "a") as f:
+                with open("split_train.txt", "a") as f:
                     f.write(f"{filename}.{ext}\n")
             elif "val" in path:
-                with open("split_images_val.txt", "a") as f:
+                with open("split_val.txt", "a") as f:
                     f.write(f"{filename}.{ext}\n")
                     
     except Exception as e:
