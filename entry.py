@@ -136,6 +136,7 @@ def validate_all_images_have_pairs(sar_path, mask_path):
             return False
     return True
 
+
 def create_txt_file(iteration):
     img_folders = os.listdir(os.path.join(os.getcwd(), f"filtered_images{iteration}"))
     with open(f"split_{iteration}.txt", "w") as f:
