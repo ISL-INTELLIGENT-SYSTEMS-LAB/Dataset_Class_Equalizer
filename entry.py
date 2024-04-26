@@ -82,7 +82,7 @@ def get_occurrence_percentage(dictionary):
     return {class_name: (count / sum(dictionary.values()) * 100) for class_name, count in dictionary.items()}
 
 
-def display_dataset_details(path, dataset_type, pixel_count_function, percentage_function, auto=False):
+def display_dataset_details(path, dataset_type, pixel_count_function, percentage_function, auto):
     # Get the list of files in the directory
     files = os.listdir(path)
     
@@ -115,16 +115,16 @@ def display_dataset_details(path, dataset_type, pixel_count_function, percentage
             f.write("\n")
 
 
-def process_dataset(dataset_path, dataset_type="dataset"):
-    display_dataset_details(dataset_path, dataset_type, count_pixels_for_split_images, get_occurrence_percentage)
+def process_dataset(dataset_path, dataset_type="dataset", auto=False):
+    display_dataset_details(dataset_path, dataset_type, count_pixels_for_split_images, get_occurrence_percentage, auto)
 
 
-def check_image_count(dir_path, catgory):
+def check_image_count(dir_path, catgory, auto=False):
     if len(os.listdir(dir_path)) == 0:
         print(f"No images to process in {catgory}.")
         return
     else:
-        process_dataset(dir_path, catgory)
+        process_dataset(dir_path, catgory, auto)
 
 
 def validate_all_images_have_pairs(sar_path, mask_path):
@@ -159,6 +159,7 @@ def automated_main():
     7. Process the class distribution post filtration
     8. Write the iteration file names that passed the threshold to a text file
     """
+    
     sar = os.path.join(os.getcwd(), "dump_sar_here")
     masks = os.path.join(os.getcwd(), "dump_masks_here")
     # Check if all SAR images have corresponding masks
@@ -178,10 +179,10 @@ def automated_main():
     val_mask_path = os.path.join(base_path, "val_mask")
     test_mask_path = os.path.join(base_path, "test_mask")
     train_mask_path = os.path.join(base_path, "train_mask")
-    check_image_count(val_mask_path, "val")
-    check_image_count(test_mask_path, "test")
-    check_image_count(train_mask_path, "train")
-    initiate_filter()
+    check_image_count(val_mask_path, "val", True)
+    check_image_count(test_mask_path, "test", True)
+    check_image_count(train_mask_path, "train", True)
+    initiate_filter(auto=True)
     folders = os.listdir(os.getcwd())
     count = 0
     for folder in folders:
@@ -193,9 +194,9 @@ def automated_main():
         test_mask_path = os.path.join(filtered_images_path, "test_mask")
         train_mask_path = os.path.join(filtered_images_path, "train_mask")
         print(f"\nFiltered Dataset {i}")
-        check_image_count(val_mask_path, "val")
-        check_image_count(test_mask_path, "test")
-        check_image_count(train_mask_path, "train")
+        check_image_count(val_mask_path, "val", True)
+        check_image_count(test_mask_path, "test", True)
+        check_image_count(train_mask_path, "train", True)
         create_txt_file(i)
     
 
@@ -229,8 +230,6 @@ Steps to follow:
 
 Thank you for using the SAR Image Dataset Expander!
 """)
-
-
 
         response = input("Do you want to run the program and have it automatically use all defaults to augment the dataset? (y/n): ")
         if response.lower() == "y":

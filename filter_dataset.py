@@ -10,7 +10,7 @@ from tqdm import tqdm
 import shutil
 from data_point_collector import count_pixels
 
-def filter_dataset(thresholds, iteration, auto=False):
+def filter_dataset(thresholds, iteration, auto):
     """
     Filter the dataset based on the threshold value.
     Creates directories and filters images based on urban and peatland percentages.
@@ -46,11 +46,13 @@ def filter_dataset(thresholds, iteration, auto=False):
                         shutil.copy(image_path, os.path.join(filtered_images_path, folder, image))  # Copy the image to the new location
                                 
                     pbar.update(1)  # Update progress bar for each image processed
-
-            with open(f"filtration_stats.txt", "a") as f:
-                f.write(f"{folder} @{thresholds[iteration-1]*100}%:\n")
-                f.write(f"Total Images: {len(os.listdir(folder_path))}\n")
-                f.write(f"Filtered Image Total: {len(os.listdir(os.path.join(filtered_images_path, folder)))}\n\n")
+            
+            # Write the statistics to a text file if auto is enabled
+            if auto:
+                with open(f"filtration_stats.txt", "a") as f:
+                    f.write(f"{folder} @{thresholds[iteration-1]*100}%:\n")
+                    f.write(f"Total Images: {len(os.listdir(folder_path))}\n")
+                    f.write(f"Filtered Image Total: {len(os.listdir(os.path.join(filtered_images_path, folder)))}\n\n")
                 
 
     
@@ -78,14 +80,14 @@ def move_corrisponding_sar(mask_img_name, category, iteration):
     shutil.copy(os.path.join(split_images_path, mask_img_name), os.path.join(base_path, f"filtered_images{iteration}", category, mask_img_name))
 
     
-def initiate_filter(thresholds=[0.1, 0.12, 0.14, 0.16]):
+def initiate_filter(thresholds=[0.1, 0.12, 0.14, 0.16], auto=False):
     """
     Initiate the filtering of the dataset based on the threshold value.
     Iterates through four threshold levels, filtering the dataset each time.
     """
     # Filter the dataset based on the threshold value
     for i in range(0, len(thresholds)):
-        filter_dataset(thresholds, i+1)
+        filter_dataset(thresholds, i+1, auto)
         print(f"Dataset filtered for threshold {thresholds[i]}.\n")
     
 
